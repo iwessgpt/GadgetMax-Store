@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const config = STORE_CONFIG;
 
     // Set common header data
@@ -8,14 +8,65 @@ document.addEventListener('DOMContentLoaded', () => {
     // Detect which page we are on
     const isProductPage = document.getElementById('page-product') !== null;
 
+    // Fetch and parse the Google Sheet CSV
+    let products = [];
+    if (config.sheetCsvUrl !== "YOUR_GOOGLE_SHEET_CSV_URL_HERE") {
+        try {
+            const response = await fetch(config.sheetCsvUrl);
+            const csvText = await response.text();
+            
+            // Parse CSV with PapaParse
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    products = results.data.map(row => {
+                        // Safely parse specs and images which might be pipe-separated or comma-separated in the sheet
+                        let specsList = [];
+                        if (row.Specs) {
+                            specsList = row.Specs.includes('|') ? row.Specs.split('|') : [row.Specs];
+                        }
+                        
+                        let imagesList = [];
+                        if (row.Image) {
+                            imagesList = row.Image.includes('|') ? row.Image.split('|') : [row.Image];
+                        }
+
+                        return {
+                            id: parseInt(row.ID) || Math.floor(Math.random() * 1000000),
+                            brand: row.Brand || "",
+                            title: row.Title || "Unknown Product",
+                            price: row.Price || "Contact for Price",
+                            description: row.Description || "",
+                            specs: specsList.map(s => s.trim()).filter(s => s),
+                            images: imagesList.map(i => i.trim()).filter(i => i)
+                        };
+                    });
+                    renderPage(products, config, isProductPage);
+                }
+            });
+        } catch (error) {
+            console.error("Error fetching or parsing Google Sheet:", error);
+            if (!isProductPage) {
+                document.getElementById('product-grid').innerHTML = '<p style="text-align:center; width:100%;">Error loading products. Please check the Google Sheet URL.</p>';
+            }
+        }
+    } else {
+        if (!isProductPage) {
+            document.getElementById('product-grid').innerHTML = '<p style="text-align:center; width:100%;">Please configure your Google Sheet URL in products.js</p>';
+        }
+    }
+});
+
+function renderPage(products, config, isProductPage) {
     if (isProductPage) {
         // --- PRODUCT DETAILS PAGE LOGIC ---
         // Get product ID from URL query parameters (e.g., ?id=1)
         const params = new URLSearchParams(window.location.search);
         const productId = parseInt(params.get('id'));
         
-        // Find the product in the config array
-        const p = config.products.find(item => item.id === productId);
+        // Find the product in the parsed array
+        const p = products.find(item => item.id === productId);
 
         if (!p) {
             // Product not found
@@ -40,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Generate Specs
         const specsList = document.getElementById('product-specs');
-        if (p.specs) {
+        if (p.specs && p.specs.length > 0) {
             p.specs.forEach(spec => {
                 const li = document.createElement('li');
                 li.textContent = spec;
@@ -83,8 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- INDEX / LISTING PAGE LOGIC ---
         document.title = `${config.storeName} - ${config.storeDescription}`;
         const grid = document.getElementById('product-grid');
+        grid.innerHTML = ''; // Clear loading text
 
-        config.products.forEach(product => {
+        products.forEach(product => {
             const card = document.createElement('div');
             card.className = 'product-card';
             
@@ -107,4 +159,4 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.appendChild(card);
         });
     }
-});
+}
