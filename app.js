@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         
                         let imagesList = [];
                         if (row.Image) {
-                            imagesList = row.Image.includes('|') ? row.Image.split('|') : [row.Image];
+                            const separator = row.Image.includes(',') ? ',' : '|';
+                            imagesList = row.Image.split(separator);
                         }
 
                         return {
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             price: row.Price || "Contact for Price",
                             description: row.Description || "",
                             specs: specsList.map(s => s.trim()).filter(s => s),
-                            images: imagesList.map(i => i.trim()).filter(i => i)
+                            images: imagesList.map(i => convertDriveUrl(i.trim())).filter(i => i)
                         };
                     });
                     renderPage(products, config, isProductPage);
@@ -57,6 +58,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
+
+// Helper function to convert Google Forms/Drive URLs into direct image links
+function convertDriveUrl(url) {
+    if (!url) return '';
+    // Handle Google Forms open?id= format
+    if (url.includes('drive.google.com/open?id=')) {
+        return url.replace('open?id=', 'uc?export=view&id=');
+    }
+    // Handle standard Google Drive share links file/d/.../view
+    const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) {
+        return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+    return url;
+}
 
 function renderPage(products, config, isProductPage) {
     if (isProductPage) {
