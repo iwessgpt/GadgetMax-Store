@@ -4,5 +4,5 @@ const STORE_CONFIG = {
     storeDescription: "Premium Gadgets and Accessories",
     
     // This URL will be replaced with your actual published Google Sheet CSV link
-    sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzPJaM9Z-umxRiA0akvyzqy45SXIpPwzuGHPeEjGONdtvSa476nuZ3A_xnkAjodPXNzUI9x3t27UuE/pub?output=csv"
+    sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRIO7DF67iliHCdNEkSPOa6CoRphDiLAAStuxC4DYL3vNPwH_jhg4Mchnir2-JyJRmNcNmhQQU8wA-4/pub?output=csv"
 };
