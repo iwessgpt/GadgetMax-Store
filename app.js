@@ -42,9 +42,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         // Try to find the price column, handling variations of the Google Form question
                         let priceField = row.Price || row['What is the price? (2500, 15000, etc)'] || row['What is the price?'] || "Contact for Price";
                         
-                        // Add Rs. prefix if it's just numbers
+                        // Add Rs. prefix and commas if it's just numbers
                         if (priceField !== "Contact for Price" && !priceField.toLowerCase().includes('rs')) {
-                            priceField = "Rs. " + priceField.replace(/[^0-9,.]/g, '');
+                            const rawNumber = priceField.replace(/[^0-9]/g, '');
+                            if (rawNumber) {
+                                priceField = "Rs. " + parseInt(rawNumber).toLocaleString();
+                            }
                         }
 
                         return {
@@ -113,7 +116,9 @@ function renderPage(products, config, isProductPage) {
         document.getElementById('product-brand').textContent = p.brand;
         document.getElementById('product-title').textContent = p.title;
         document.getElementById('product-price').textContent = p.price;
-        document.getElementById('product-desc').textContent = p.description;
+        
+        // Format description with line breaks
+        document.getElementById('product-desc').innerHTML = p.description.replace(/\n/g, '<br>');
 
         // Set Main Image
         const mainImg = document.getElementById('main-image');
