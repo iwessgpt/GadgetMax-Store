@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    products = results.data.map(row => {
+                    products = results.data.map((row, index) => {
                         // Safely parse specs and images which might be pipe-separated or comma-separated in the sheet
                         let specsList = [];
                         if (row.Specs) {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         return {
-                            id: parseInt(row.ID || row.Timestamp) || Math.floor(Math.random() * 1000000),
+                            id: parseInt(row.ID) || (index + 1),
                             brand: row.Brand || "",
                             title: row.Title || "Unknown Product",
                             price: priceField,
