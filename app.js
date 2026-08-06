@@ -40,10 +40,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         // Try to find the price column, handling variations of the Google Form question
-                        const priceField = row.Price || row['What is the price? (2500, 15000, etc)'] || row['What is the price?'] || "Contact for Price";
+                        let priceField = row.Price || row['What is the price? (2500, 15000, etc)'] || row['What is the price?'] || "Contact for Price";
+                        
+                        // Add Rs. prefix if it's just numbers
+                        if (priceField !== "Contact for Price" && !priceField.toLowerCase().includes('rs')) {
+                            priceField = "Rs. " + priceField.replace(/[^0-9,.]/g, '');
+                        }
 
                         return {
-                            id: parseInt(row.ID) || Math.floor(Math.random() * 1000000),
+                            id: parseInt(row.ID || row.Timestamp) || Math.floor(Math.random() * 1000000),
                             brand: row.Brand || "",
                             title: row.Title || "Unknown Product",
                             price: priceField,
@@ -73,12 +78,14 @@ function convertDriveUrl(url) {
     if (!url) return '';
     // Handle Google Forms open?id= format
     if (url.includes('drive.google.com/open?id=')) {
-        return url.replace('open?id=', 'uc?export=view&id=');
+        const id = url.split('open?id=')[1];
+        // Use thumbnail endpoint to bypass Google's strict hotlinking blocks
+        return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
     }
     // Handle standard Google Drive share links file/d/.../view
     const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
     if (match) {
-        return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
     }
     return url;
 }
