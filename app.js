@@ -33,16 +33,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                         
                         let imagesList = [];
-                        if (row.Image) {
-                            const separator = row.Image.includes(',') ? ',' : '|';
-                            imagesList = row.Image.split(separator);
+                        const imgField = row.Image || row['Upload Photos'];
+                        if (imgField) {
+                            const separator = imgField.includes(',') ? ',' : '|';
+                            imagesList = imgField.split(separator);
                         }
+
+                        // Try to find the price column, handling variations of the Google Form question
+                        const priceField = row.Price || row['What is the price? (2500, 15000, etc)'] || row['What is the price?'] || "Contact for Price";
 
                         return {
                             id: parseInt(row.ID) || Math.floor(Math.random() * 1000000),
                             brand: row.Brand || "",
                             title: row.Title || "Unknown Product",
-                            price: row.Price || "Contact for Price",
+                            price: priceField,
                             description: row.Description || "",
                             specs: specsList.map(s => s.trim()).filter(s => s),
                             images: imagesList.map(i => convertDriveUrl(i.trim())).filter(i => i)
