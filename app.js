@@ -12,7 +12,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let products = [];
     if (config.sheetCsvUrl !== "YOUR_GOOGLE_SHEET_CSV_URL_HERE") {
         try {
-            const response = await fetch(config.sheetCsvUrl);
+            // Add a random timestamp to bypass browser caching so it updates instantly
+            const cacheBusterUrl = config.sheetCsvUrl.includes('?') 
+                ? `${config.sheetCsvUrl}&t=${new Date().getTime()}` 
+                : `${config.sheetCsvUrl}?t=${new Date().getTime()}`;
+                
+            const response = await fetch(cacheBusterUrl);
             const csvText = await response.text();
             
             // Parse CSV with PapaParse
