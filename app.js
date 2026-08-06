@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         // Try to find the price column, handling variations of the Google Form question
                         let priceField = row.Price || row['What is the price? (2500, 15000, etc)'] || row['What is the price?'] || "Contact for Price";
                         
-                        // Add Rs. prefix and commas if it's just numbers
-                        if (priceField !== "Contact for Price" && !priceField.toLowerCase().includes('rs')) {
+                        // Enforce consistent Rs. 10,000 formatting regardless of how they typed it
+                        if (priceField !== "Contact for Price") {
                             const rawNumber = priceField.replace(/[^0-9]/g, '');
                             if (rawNumber) {
                                 priceField = "Rs. " + parseInt(rawNumber).toLocaleString();
