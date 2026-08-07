@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const config = STORE_CONFIG;
 
-    // Set common header data
-    document.getElementById('store-title').textContent = config.storeName;
-    document.getElementById('store-desc').textContent = config.storeDescription;
+    // Set common header data if elements exist
+    const titleEl = document.getElementById('store-title');
+    if (titleEl) titleEl.textContent = config.storeName;
+    
+    const descEl = document.getElementById('store-desc');
+    if (descEl) descEl.textContent = config.storeDescription;
 
     // Detect which page we are on
     const isProductPage = document.getElementById('page-product') !== null;
